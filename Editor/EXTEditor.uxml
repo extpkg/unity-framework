@@ -1,0 +1,71 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:ScrollView name="RootScroll" view-data-key="RootScroll">
+        <ui:Label text="Configure your extension below and then press build." display-tooltip-when-elided="true" name="LabelTop" style="align-items: auto; font-size: 16px; white-space: normal; padding-left: 9px; padding-top: 9px; padding-bottom: 9px; padding-right: 9px;" />
+        <ui:Foldout text="Tab Configuration" name="TabFoldout" view-data-key="TabFoldout" value="false">
+            <ui:Toggle label="Enabled" name="TabEnabled" value="true" tooltip="Enable tab creation" />
+            <ui:Toggle label="Mutable" name="TabMutable" value="true" tooltip="Add mute button to tabs" />
+            <ui:Toggle label="Muted" name="TabMuted" tooltip="Start muted" />
+            <ui:TextField picking-mode="Ignore" label="Title" name="TabTitle" tooltip="Tab text" />
+            <uie:ObjectField label="Icon" name="TabIcon" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Tab icon" />
+            <uie:ObjectField label="Dark Icon" name="TabIconDark" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Dark tab icon" />
+        </ui:Foldout>
+        <ui:Foldout text="Window Configuration" name="WindowFoldout" view-data-key="WindowFoldout" value="false">
+            <ui:TextField picking-mode="Ignore" label="Title" name="WindowTitle" tooltip="Window frame title" />
+            <uie:ObjectField label="Icon" name="WindowIcon" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Window icon" />
+            <uie:EnumField label="Style" name="WindowStyle" include-obsolete-values="false" tooltip="Window frame style" />
+            <uie:Vector2IntField label="Size" name="WindowSize" tooltip="Initial window size" />
+            <uie:Vector2IntField label="Min Size" name="WindowMinSize" tooltip="Minimum window size or 0 to disable" />
+            <uie:Vector2IntField label="Max Size" name="WindowMaxSize" tooltip="Maximum window size or 0 to disable" />
+            <ui:Toggle label="Center" name="WindowCenter" tooltip="Create window in the center of the screen" />
+            <ui:Toggle label="Resizable" name="WindowResizable" value="true" tooltip="Allow window resizing" />
+            <ui:Toggle label="Movable" name="WindowMovable" value="true" tooltip="Allow window to move" />
+            <ui:Toggle label="Minimizable" name="WindowMinimizable" value="true" tooltip="Allow window to be minimized" />
+            <ui:Toggle label="Maximizable" name="WindowMaximizable" value="true" tooltip="Allow window to maximize" />
+            <ui:Toggle label="Closable" name="WindowClosable" value="true" tooltip="Allow window to be closed" />
+            <ui:Toggle label="Always On Top" name="WindowAlwaysOnTop" tooltip="Show window in front of all other windows" />
+            <ui:Toggle label="Start Fullscreen" name="WindowFullscreen" tooltip="Start in fullscreen mode" />
+            <ui:Toggle label="Fullscreenable" name="WindowFullscreenable" value="true" tooltip="Allow window to be fullscreenable" />
+            <ui:Toggle label="Skip Taskbar" name="WindowSkipTaskbar" tooltip="Dont show taskbar entry" />
+            <ui:Toggle label="Lock Aspect Ratio" name="WindowLockAspect" tooltip="Lock aspect ratio to initial window size" />
+        </ui:Foldout>
+        <ui:Foldout text="Webview Configuration" name="WebviewFoldout" view-data-key="WebviewFoldout" value="false">
+            <ui:Toggle label="Loading Screen" name="WebviewLoadEnabled" value="true" tooltip="Display loading screen" />
+            <uie:ObjectField label="Loading Icon" type="UnityEngine.Texture, UnityEngine.CoreModule" name="WebviewLoadIcon" tooltip="Loading screen icon" />
+            <ui:Toggle label="Data persistence" name="WebviewPersist" value="true" tooltip="Persist game data across restarts" />
+            <ui:Toggle label="Open DevTools" name="WebviewDevTools" tooltip="Open DevTools for each window" />
+        </ui:Foldout>
+        <ui:Foldout text="Manifest Configuration" name="ManifestFoldout" view-data-key="ManifestFoldout">
+            <ui:TextField picking-mode="Ignore" label="Name" name="ManifestName" tooltip="Extension name" />
+            <ui:TextField picking-mode="Ignore" label="Version" name="ManifestVersion" tooltip="Extension version" />
+            <ui:TextField picking-mode="Ignore" label="Description" name="ManifestDescription" tooltip="Extension description" />
+            <ui:TextField picking-mode="Ignore" label="Author" name="ManifestAuthor" tooltip="Extension author" />
+            <ui:TextField picking-mode="Ignore" label="Homepage" name="ManifestHomepage" tooltip="Extension homepage" />
+            <uie:ObjectField label="Icon" name="ManifestIcon" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Extension icon (128x128)" />
+            <uie:ObjectField label="Background" name="ManifestBackground" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Extension background" />
+            <uie:ObjectField label="Banner" name="ManifestBanner" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Extension banner" />
+            <uie:ObjectField label="Dark Icon" name="ManifestIconDark" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Dark extension icon (128x128)" />
+            <uie:ObjectField label="Dark Background" name="ManifestBackgroundDark" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Dark extension background" />
+            <uie:ObjectField label="Dark Banner" name="ManifestBannerDark" type="UnityEngine.Texture, UnityEngine.CoreModule" allow-scene-objects="false" tooltip="Dark extension banner" />
+        </ui:Foldout>
+        <ui:VisualElement name="BuildSpacer" style="height: 1px; background-color: rgb(196, 196, 196); padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 9px; margin-bottom: 4px; margin-right: 9px; margin-top: 4px;" />
+        <ui:VisualElement name="BuildView" style="margin-left: 9px; margin-right: 9px;">
+            <ui:TextField picking-mode="Ignore" label="ZIP Filename" name="BuildName" tooltip="Filename for zip builds" />
+            <ui:VisualElement name="BuildToolsView" style="flex-direction: row; justify-content: flex-start;">
+                <ui:Label text="Tools" display-tooltip-when-elided="true" name="BuildToolsLabel" style="min-width: 150px; margin-right: 2px; -unity-text-align: middle-left; padding-left: 4px;" />
+                <ui:Button text="Defaults" display-tooltip-when-elided="true" name="BuildDefaults" tooltip="Reset all values to default" />
+                <ui:Button display-tooltip-when-elided="true" name="BuildDir" tooltip="Build to a directory">
+                    <ui:VisualElement name="BuildDirView" style="flex-direction: row;">
+                        <ui:IMGUIContainer name="BuildDirIcon" style="background-image: url(&apos;project://database/Packages/store.ext/Editor/EXTBox.png?fileID=2800000&amp;guid=88b5bd29f56f88c48ac9831fd0890d76&amp;type=3#EXTBox&apos;); width: 16px; height: 16px; margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px;" />
+                        <ui:Label text="Build" display-tooltip-when-elided="true" name="BuildDirLabel" />
+                    </ui:VisualElement>
+                </ui:Button>
+                <ui:Button display-tooltip-when-elided="true" name="BuildZip" tooltip="Build to a ZIP file">
+                    <ui:VisualElement name="BuildZipView" style="flex-direction: row;">
+                        <ui:IMGUIContainer name="BuildZipIcon" style="background-image: url(&apos;project://database/Packages/store.ext/Editor/EXTBox.png?fileID=2800000&amp;guid=88b5bd29f56f88c48ac9831fd0890d76&amp;type=3#EXTBox&apos;); width: 16px; height: 16px; margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px;" />
+                        <ui:Label text="Build ZIP" display-tooltip-when-elided="true" name="BuildZipLabel" />
+                    </ui:VisualElement>
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

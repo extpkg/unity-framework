@@ -1,0 +1,42 @@
+{
+	"manifest_version": "ext-v1",
+	"name": "{{{ PRODUCT_NAME }}}",
+	"version": "{{{ PRODUCT_VERSION }}}",
+	"description": "{{{ PRODUCT_NAME }}}",
+	"author": "{{{ COMPANY_NAME }}}",
+	"homepage": "",
+	"icons": {
+		"128": "icons/icon-128.png",
+		"background": "icons/icon-background.png",
+		"banner": "icons/icon-banner.png",
+		"128-dark": "icons/icon-128-dark.png",
+		"background-dark": "icons/icon-background-dark.png",
+		"banner-dark": "icons/icon-banner-dark.png"
+	},
+	"scripts": [
+		"main.js"
+	],
+	"modules": {
+		"console": {
+			"module_version": "1.0.1"
+		},
+		"runtime": {
+			"module_version": "1.2.2"
+		},
+		"tabs": {
+			"module_version": "1.1.0"
+		},
+		"windows": {
+			"module_version": "1.2.1"
+		},
+		"webviews": {
+			"module_version": "1.0.2"
+		},
+		"websessions": {
+			"module_version": "1.0.3",
+			"optional_permissions": [
+				"create.persistent"
+			]
+		}
+	}
+}
