@@ -49,6 +49,8 @@
           const size = await ext.windows.getInsetSize(extWindow.id);
           topBar.style.marginRight = size.width + "px";
           topBar.style.height = size.height + "px";
+        } else {
+          topBar.style.height = "40px";
         }
       })();
     }
