@@ -104,11 +104,11 @@ ext.runtime.onExtensionClick.addListener(async () => {
     // Create webview
     webview = await ext.webviews.create({ websession: websession ?? undefined })
     const size = await ext.windows.getContentSize(window.id)
-    await ext.webviews.loadFile(webview.id, 'index.html')
     await ext.webviews.attach(webview.id, window.id)
     await ext.webviews.setBounds(webview.id, { x: 0, y: 0, width: size.width, height: size.height })
     await ext.webviews.setAutoResize(webview.id, { width: true, height: true })
-
+    await ext.webviews.loadFile(webview.id, 'index.html')
+    
     // Mute tab initially
     if (ConfigTabMuted) {
       await ext.webviews.setAudioMuted(webview.id, true)

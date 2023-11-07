@@ -40,9 +40,19 @@
     progressBarPercentage.classList.add("{{{ SPLASH_SCREEN_STYLE }}}".toLowerCase());
     if (backgroundFilename) canvas.style.background = "url('Build/'" + backgroundFilename.replace(/'/g, '%27') + "') center/cover";
     if (!configLoadEnabled) loadingBar.style.display = "none";
-    if (configDragEnabled) topBar.style.display = "block";
-	if (!configDragInset) topBar.style.margin = "0px";
-	logoImg.src = configLoadIcon;
+    if (configDragEnabled) {
+      topBar.style.display = "block";
+      (async () => {
+        if (configDragInset) {
+          const extWebview = await window.ext.webviews.getCurrent();
+          const extWindow = await window.ext.webviews.getAttachedWindow(extWebview.id);
+          const size = await ext.windows.getInsetSize(extWindow.id);
+          topBar.style.marginRight = size.width + "px";
+          topBar.style.height = size.height + "px";
+        }
+      })();
+    }
+    logoImg.src = configLoadIcon;
     const script = document.createElement("script");
     script.src = "Build/{{{ LOADER_FILENAME }}}";
     script.onload = () => {

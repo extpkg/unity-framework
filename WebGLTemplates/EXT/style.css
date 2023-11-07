@@ -14,9 +14,9 @@ body {
 #unity-top-bar {
     background: black;
     -webkit-app-region: drag;
-    height: 40px;
-    margin-right: 104px;
-	display: none;
+    height: 0px;
+    margin-right: 0px;
+    display: none;
 }
 
 #unity-loading-bar {

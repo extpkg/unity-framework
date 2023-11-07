@@ -381,8 +381,14 @@ namespace EXT.Editor {
 		}
 
 		private const EXTWindowStyle WindowStyleDefault = EXTWindowStyle.Normal;
-		private EXTWindowStyle GetWindowStyle() => (EXTWindowStyle)Enum.Parse(typeof(EXTWindowStyle), EXTPrefs.GetString("WindowStyle", WindowStyleDefault.ToString()));
 		private void OnChangeWindowStyle(ChangeEvent<Enum> e) => EXTPrefs.SetString("WindowStyle", e.newValue.ToString());
+		private EXTWindowStyle GetWindowStyle() {
+			if (Enum.TryParse<EXTWindowStyle>(EXTPrefs.GetString("WindowStyle", null), out EXTWindowStyle result)) {
+				return result;
+			} else {
+				return WindowStyleDefault;
+			}
+		}
 
 		private Vector2Int GetWindowSize() => new Vector2Int(EXTPrefs.GetInt("WindowSizeX", 800), EXTPrefs.GetInt("WindowSizeY", 600));
 		private void OnChangeWindowSize(ChangeEvent<Vector2Int> e) {
@@ -949,7 +955,7 @@ namespace EXT.Editor {
 			// Copy tab dark icon
 			string tabIconDarkDst = "";
 			string tabIconDarkSrc = GetTabIconDark();
-			if (string.IsNullOrEmpty(tabIconDarkSrc)) {
+			if (!string.IsNullOrEmpty(tabIconDarkSrc)) {
 				tabIconDarkDst = Path.Combine("icons", "tab-icon-dark" + Path.GetExtension(tabIconDarkSrc));
 				FileUtil.CopyFileOrDirectory(tabIconDarkSrc, Path.Combine(path, tabIconDarkDst));
 			}

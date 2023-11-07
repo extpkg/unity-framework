@@ -6,38 +6,32 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
+
+#pragma warning disable IDE0090 // Use 'new(...)'
 
 namespace EXT.Editor {
 
 	public class EXTPrefs : ScriptableObject {
 
 		[Serializable]
-		private class Record<T> {
+		private class Record {
 			public string Key;
-			public T Value;
+			public string Value;
 		}
 
 		[SerializeField]
-		private List<Record<bool>> BoolRecords = new List<Record<bool>>();
+		private List<Record> m_Records = new List<Record>();
 		
-		[SerializeField]
-		private List<Record<string>> StringRecords = new List<Record<string>>();
-		
-		[SerializeField]
-		private List<Record<int>> IntRecords = new List<Record<int>>();
+		// Seen keys for copying
+		private static readonly HashSet<string> Keys = new HashSet<string>();
 
+		// Asset configuration
 		private static readonly string AssetPath = "Assets/EXT/Prefs.asset";
 		private static bool AssetEnabled = false;
 
 		public static void Initialize() {
-			EXTPrefs instance = AssetDatabase.LoadAssetAtPath<EXTPrefs>(AssetPath);
-			if (instance != null) {
-				AssetEnabled = true;
-				GetAsset();
-			} else {
-				AssetEnabled = false;
-				DeleteAsset();
-			}
+			AssetEnabled = AssetDatabase.LoadAssetAtPath<EXTPrefs>(AssetPath) != null;
 		}
 
 		public static string GetAssetPath() {
@@ -49,166 +43,265 @@ namespace EXT.Editor {
 		}
 
 		public static void SetAssetEnabled(bool enabled) {
+
+			// Check for changes
+			if (AssetEnabled == enabled) {
+				return;
+			}
+
+			// Copy records to persist them
+			if (enabled) {
+				CopyFromPrefs();
+			} else {
+				CopyFromAsset();
+			}
+
+			// Update state
 			AssetEnabled = enabled;
+
+			// Create or delete asset
 			if (enabled) {
 				GetAsset();
 			} else {
 				DeleteAsset();
 			}
+
 		}
 
-		private static void DeleteAsset() {
-			if (AssetDatabase.DeleteAsset(AssetPath)) {
-				AssetDatabase.Refresh();
-				string parent = Path.GetDirectoryName(AssetPath);
-				string meta = parent + ".meta";
-				if (Directory.Exists(parent) && !Directory.EnumerateFileSystemEntries(parent).Any() && File.Exists(meta)) {
-					Directory.Delete(parent);
-					File.Delete(meta);
-				}
+		public static bool GetBool(string key, bool defaultValue) {
+			if (!TryGetRecord(key, out string value)) return defaultValue;
+			if (!bool.TryParse(value, out bool result)) return defaultValue;
+			return result;
+		}
+
+		public static void SetBool(string key, bool value) {
+			SetRecord(key, value.ToString());
+		}
+
+		public static string GetString(string key, string defaultValue) {
+			if (!TryGetRecord(key, out string value)) return defaultValue;
+			return value;
+		}
+
+		public static void SetString(string key, string value) {
+			SetRecord(key, value);
+		}
+
+		public static int GetInt(string key, int defaultValue) {
+			if (!TryGetRecord(key, out string value)) return defaultValue;
+			if (!int.TryParse(value, out int result)) return defaultValue;
+			return result;
+		}
+
+		public static void SetInt(string key, int value) {
+			SetRecord(key, value.ToString());
+		}
+
+		public static void DeleteKey(string key) {
+			DeleteRecord(key);
+		}
+
+		private static bool TryGetRecord(string key, out string value) {
+			Keys.Add(key);
+			if (AssetEnabled) {
+				return TryGetRecordFromAsset(null, key, out value);
+			} else {
+				return TryGetRecordFromPrefs(key, out value);
+			}
+		}
+
+		private static void SetRecord(string key, string value) {
+			Keys.Add(key);
+			if (AssetEnabled) {
+				SetRecordToAsset(null, key, value, true);
+			} else {
+				SetRecordToPrefs(key, value);
+			}
+		}
+
+		private static void DeleteRecord(string key) {
+			if (AssetEnabled) {
+				DeleteRecordFromAsset(null, key, true);
+			} else {
+				DeleteRecordFromPrefs(key);
 			}
 		}
 
 		private static EXTPrefs GetAsset() {
+
+			// Get current instance
 			EXTPrefs instance = AssetDatabase.LoadAssetAtPath<EXTPrefs>(AssetPath);
-			if (instance == null) {
-				instance = CreateInstance<EXTPrefs>();
-				Directory.CreateDirectory(Path.GetDirectoryName(AssetPath));
-				AssetDatabase.CreateAsset(instance, AssetPath);
-				AssetDatabase.Refresh();
+			if (instance != null) {
+				return instance;
 			}
+
+			// Create a new instance and save it
+			instance = CreateInstance<EXTPrefs>();
+			Directory.CreateDirectory(Path.GetDirectoryName(AssetPath));
+			AssetDatabase.CreateAsset(instance, AssetPath);
+			AssetDatabase.Refresh();
+
+			// Load saved instance
+			instance = AssetDatabase.LoadAssetAtPath<EXTPrefs>(AssetPath);
+			if (instance == null) throw new Exception("Failed to create EXT configuration asset.");
+
+			// Success
 			return instance;
+
 		}
 
-		private static string GetProjectHash() {
-			return Application.dataPath.GetHashCode().ToString();
-		}
+		private static void DeleteAsset() {
 
-		public static bool GetBool(string key, bool defaultValue) {
-			if (AssetEnabled) {
-				List<Record<bool>> records = GetAsset().BoolRecords;
-				foreach (Record<bool> record in records) {
-					if (record.Key == key) {
-						return record.Value;
-					}
-				}
-				return defaultValue;
-			} else {
-				return EditorPrefs.GetBool("EXT." + GetProjectHash() + "." + key, defaultValue);
+			// Delete asset
+			if (!AssetDatabase.DeleteAsset(AssetPath)) {
+				return;
 			}
-		}
 
-		public static void SetBool(string key, bool value) {
-			if (AssetEnabled) {
-				List<Record<bool>> records = GetAsset().BoolRecords;
-				foreach (Record<bool> record in records) {
-					if (record.Key == key) {
-						record.Value = value;
-						return;
-					}
-				}
-				records.Add(new Record<bool> { Key = key, Value = value });
-			} else {
-				EditorPrefs.SetBool("EXT." + GetProjectHash() + "." + key, value);
+			// Refresh database
+			AssetDatabase.Refresh();
+
+			// Delete asset directory if empty
+			string parent = Path.GetDirectoryName(AssetPath);
+			string meta = parent + ".meta";
+			if (Directory.Exists(parent) && !Directory.EnumerateFileSystemEntries(parent).Any() && File.Exists(meta)) {
+				Directory.Delete(parent);
+				File.Delete(meta);
 			}
+
 		}
 
-		public static string GetString(string key, string defaultValue) {
-			if (AssetEnabled) {
-				List<Record<string>> records = GetAsset().StringRecords;
-				foreach (Record<string> record in records) {
-					if (record.Key == key) {
-						return record.Value;
-					}
-				}
-				return defaultValue;
-			} else {
-				return EditorPrefs.GetString("EXT." + GetProjectHash() + "." + key, defaultValue);
-			}
-		}
+		private static bool TryGetRecordFromAsset(EXTPrefs instance, string key, out string value) {
+			
+			// Get record
+			instance =
 
-		public static void SetString(string key, string value) {
-			if (AssetEnabled) {
-				List<Record<string>> records = GetAsset().StringRecords;
-				foreach (Record<string> record in records) {
-					if (record.Key == key) {
-						record.Value = value;
-						return;
-					}
-				}
-				records.Add(new Record<string> { Key = key, Value = value });
-			} else {
-				EditorPrefs.SetString("EXT." + GetProjectHash() + "." + key, value);
-			}
-		}
+			// Get record
+			instance != null ?
 
-		public static int GetInt(string key, int defaultValue) {
-			if (AssetEnabled) {
-				List<Record<int>> records = GetAsset().IntRecords;
-				foreach (Record<int> record in records) {
-					if (record.Key == key) {
-						return record.Value;
-					}
-				}
-				return defaultValue;
-			} else {
-				return EditorPrefs.GetInt("EXT." + GetProjectHash() + "." + key, defaultValue);
-			}
-		}
-
-		public static void SetInt(string key, int value) {
-			if (AssetEnabled) {
-				List<Record<int>> records = GetAsset().IntRecords;
-				foreach (Record<int> record in records) {
-					if (record.Key == key) {
-						record.Value = value;
-						return;
-					}
-				}
-				records.Add(new Record<int> { Key = key, Value = value });
-			} else {
-				EditorPrefs.SetInt("EXT." + GetProjectHash() + "." + key, value);
-			}
-		}
-
-		public static void DeleteKey(string key) {
-			if (AssetEnabled) {
-				DeleteKeyBool(key);
-				DeleteKeyString(key);
-				DeleteKeyInt(key);
-			} else {
-				EditorPrefs.DeleteKey("EXT." + GetProjectHash() + "." + key);
-			}
-		}
-
-		private static void DeleteKeyBool(string key) {
-			List<Record<bool>> records = GetAsset().BoolRecords;
-			foreach (Record<bool> record in records) {
+			// Get record
+			instance : GetAsset();
+			foreach (Record record in instance.m_Records) {
 				if (record.Key == key) {
-					records.Remove(record);
-					return;
+					value = record.Value;
+					return true;
 				}
 			}
+
+			// Not found
+			value = null;
+			return false;
+
 		}
 
-		private static void DeleteKeyString(string key) {
-			List<Record<string>> records = GetAsset().StringRecords;
-			foreach (Record<string> record in records) {
+		private static void SetRecordToAsset(EXTPrefs instance, string key, string value, bool update) {
+
+			// Update existing record
+			bool found = false;
+			instance = instance != null ? instance : GetAsset();
+			foreach (Record record in instance.m_Records) {
 				if (record.Key == key) {
-					records.Remove(record);
-					return;
+					record.Value = value;
+					found = true;
+					break;
 				}
 			}
+
+			// Add a new record if not found
+			if (!found) {
+				instance.m_Records.Add(new Record { Key = key, Value = value });
+			}
+			
+			// Update asset
+			if (update) {
+				EditorUtility.SetDirty(instance);
+				AssetDatabase.SaveAssets();
+			}
+
 		}
 
-		private static void DeleteKeyInt(string key) {
-			List<Record<int>> records = GetAsset().IntRecords;
-			foreach (Record<int> record in records) {
+		private static void DeleteRecordFromAsset(EXTPrefs instance, string key, bool update) {
+
+			// Delete record
+			bool found = false;
+			instance = instance != null ? instance : GetAsset();
+			foreach (Record record in instance.m_Records) {
 				if (record.Key == key) {
-					records.Remove(record);
-					return;
+					instance.m_Records.Remove(record);
+					break;
 				}
 			}
+
+			// Update asset
+			if (found && update) {
+				EditorUtility.SetDirty(instance);
+				AssetDatabase.SaveAssets();
+			}
+
+		}
+
+		private static string GetProjectKey(string key) {
+			return "EXT." + Application.dataPath.GetHashCode().ToString() + "." + key;
+		}
+
+		private static bool TryGetRecordFromPrefs(string key, out string value) {
+			
+			// Get record
+			string projectKey = GetProjectKey(key);
+			if (EditorPrefs.HasKey(projectKey)) {
+				value = EditorPrefs.GetString(projectKey, null);
+				return value != null;
+			}
+
+			// Not found
+			value = null;
+			return false;
+			
+		}
+
+		private static void SetRecordToPrefs(string key, string value) {
+			string projectKey = GetProjectKey(key);
+			EditorPrefs.SetString(projectKey, value);
+		}
+
+		private static void DeleteRecordFromPrefs(string key) {
+			string projectKey = GetProjectKey(key);
+			EditorPrefs.DeleteKey(projectKey);
+		}
+
+		private static void CopyFromPrefs() {
+
+			// Get asset
+			EXTPrefs instance = GetAsset();
+
+			// Copy records from prefs to asset
+			foreach (string key in Keys) {
+				if (TryGetRecordFromPrefs(key, out string value)) {
+					SetRecordToAsset(instance, key, value, false);
+				} else {
+					DeleteRecordFromAsset(instance, key, false);
+				}
+			}
+
+			// Update asset
+			EditorUtility.SetDirty(instance);
+			AssetDatabase.SaveAssets();
+
+		}
+
+		private static void CopyFromAsset() {
+
+			// Get asset
+			EXTPrefs instance = GetAsset();
+
+			// Copy records from asset to prefs
+			foreach (string key in Keys) {
+				if (TryGetRecordFromAsset(instance, key, out string value)) {
+					SetRecordToPrefs(key, value);
+				} else {
+					DeleteRecordFromPrefs(key);
+				}
+			}
+
 		}
 
 	}
