@@ -1,9 +1,9 @@
 {
   "name": "store.ext",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "EXT Framework",
   "description": "Integrate your Unity project with EXT!",
-  "unity": "2021.1",
+  "unity": "2020.1",
   "license": "MIT",
   "documentationUrl": "https://github.com/extpkg/unity-framework",
   "keywords": [

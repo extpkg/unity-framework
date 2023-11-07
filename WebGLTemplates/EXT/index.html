@@ -9,6 +9,7 @@
 </head>
 <body>
   <canvas id="unity-canvas"></canvas>
+  <div id="unity-top-bar"></div>
   <div id="unity-loading-bar">
     <div id="unity-logo"><img id="unity-logo-img" /></div>
     <div id="unity-progress-bar-wrapper">
@@ -19,6 +20,8 @@
     </div>
   </div>
   <script>
+    const configDragInset = false;
+    const configDragEnabled = false;
     const configLoadEnabled = true;
     const configLoadIcon = "ext-" + "{{{ SPLASH_SCREEN_STYLE }}}".toLowerCase() + ".png";
     const canvas = document.querySelector("#unity-canvas");
@@ -27,12 +30,19 @@
     const progressBarFull = document.querySelector("#unity-progress-bar-full");
     const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
     const progressBarPercentage = document.querySelector("#unity-progress-bar-percentage");
+    const topBar = document.querySelector("#unity-top-bar");
+    const memoryFilename = "{{{ MEMORY_FILENAME }}}";
+    const symbolsFilename = "{{{ SYMBOLS_FILENAME }}}";
+    const backgroundFilename = "{{{ BACKGROUND_FILENAME }}}";
+    canvas.style.background = "{{{ BACKGROUND_COLOR }}}";
     progressBarFull.classList.add("{{{ SPLASH_SCREEN_STYLE }}}".toLowerCase());
     progressBarEmpty.classList.add("{{{ SPLASH_SCREEN_STYLE }}}".toLowerCase());
     progressBarPercentage.classList.add("{{{ SPLASH_SCREEN_STYLE }}}".toLowerCase());
-    canvas.style.background = "{{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}}";
+    if (backgroundFilename) canvas.style.background = "url('Build/'" + backgroundFilename.replace(/'/g, '%27') + "') center/cover";
     if (!configLoadEnabled) loadingBar.style.display = "none";
-    logoImg.src = configLoadIcon;
+    if (configDragEnabled) topBar.style.display = "block";
+	if (!configDragInset) topBar.style.margin = "0px";
+	logoImg.src = configLoadIcon;
     const script = document.createElement("script");
     script.src = "Build/{{{ LOADER_FILENAME }}}";
     script.onload = () => {
@@ -40,12 +50,8 @@
         dataUrl: "Build/{{{ DATA_FILENAME }}}",
         frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
         codeUrl: "Build/{{{ CODE_FILENAME }}}",
-        #if MEMORY_FILENAME
-            memoryUrl: "Build/{{{ MEMORY_FILENAME }}}",
-        #endif
-        #if SYMBOLS_FILENAME
-            symbolsUrl: "Build/{{{ SYMBOLS_FILENAME }}}",
-        #endif
+        memoryUrl: memoryFilename ? "Build/" + memoryFilename : undefined,
+        symbolsUrl: symbolsFilename ? "Build/" + symbolsFilename : undefined,
         streamingAssetsUrl: "StreamingAssets",
         companyName: "{{{ COMPANY_NAME }}}",
         productName: "{{{ PRODUCT_NAME }}}",

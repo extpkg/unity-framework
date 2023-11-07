@@ -49,7 +49,8 @@
         </ui:Foldout>
         <ui:VisualElement name="BuildSpacer" style="height: 1px; background-color: rgb(196, 196, 196); padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 9px; margin-bottom: 4px; margin-right: 9px; margin-top: 4px;" />
         <ui:VisualElement name="BuildView" style="margin-left: 9px; margin-right: 9px;">
-            <ui:TextField picking-mode="Ignore" label="ZIP Filename" name="BuildName" tooltip="Filename for zip builds" />
+            <ui:Toggle label="Use Asset Config" name="BuildAssetEnable" tooltip="Store configuration to Assets directory" />
+            <ui:TextField picking-mode="Ignore" label="Asset Config" name="BuildAssetName" focusable="false" readonly="true" tooltip="Location to the asset configuration file" />
             <ui:VisualElement name="BuildToolsView" style="flex-direction: row; justify-content: flex-start;">
                 <ui:Label text="Tools" display-tooltip-when-elided="true" name="BuildToolsLabel" style="min-width: 150px; margin-right: 2px; -unity-text-align: middle-left; padding-left: 4px;" />
                 <ui:Button text="Defaults" display-tooltip-when-elided="true" name="BuildDefaults" tooltip="Reset all values to default" />

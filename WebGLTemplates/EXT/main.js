@@ -93,8 +93,10 @@ ext.runtime.onExtensionClick.addListener(async () => {
 
     // Create websession
     if (ConfigWebviewPersist) {
+      const permissions = await ext.runtime.getPermissions()
+      const persistent = (permissions['websessions'] ?? {})['create.persistent']?.granted ?? false
       websession = await ext.websessions.create({
-        persistent: true,
+        persistent: persistent,
         cache: true,
       })
     }
