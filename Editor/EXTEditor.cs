@@ -867,44 +867,50 @@ namespace EXT.Editor {
 			File.Delete(Path.Combine(path, "icons", "icon-banner-dark.png"));
 
 			// Copy manifest icon
+			string iconDst = "";
 			string iconSrc = GetManifestIcon();
 			if (!string.IsNullOrEmpty(iconSrc)) {
-				string iconDst = Path.Combine("icons", "icon-128" + Path.GetExtension(iconSrc));
+				iconDst = Path.Combine("icons", "icon-128" + Path.GetExtension(iconSrc));
 				FileUtil.CopyFileOrDirectory(iconSrc, Path.Combine(path, iconDst));
 			}
 
 			// Copy manifest background
+			string backgroundDst = "";
 			string backgroundSrc = GetManifestBackground();
 			if (!string.IsNullOrEmpty(backgroundSrc)) {
-				string backgroundDst = Path.Combine("icons", "icon-background" + Path.GetExtension(backgroundSrc));
+				backgroundDst = Path.Combine("icons", "icon-background" + Path.GetExtension(backgroundSrc));
 				FileUtil.CopyFileOrDirectory(backgroundSrc, Path.Combine(path, backgroundDst));
 			}
 
 			// Copy manifest banner
+			string bannerDst = "";
 			string bannerSrc = GetManifestBanner();
 			if (!string.IsNullOrEmpty(bannerSrc)) {
-				string bannerDst = Path.Combine("icons", "icon-banner" + Path.GetExtension(bannerSrc));
+				bannerDst = Path.Combine("icons", "icon-banner" + Path.GetExtension(bannerSrc));
 				FileUtil.CopyFileOrDirectory(bannerSrc, Path.Combine(path, bannerDst));
 			}
 
 			// Copy manifest dark icon
+			string iconDarkDst = "";
 			string iconDarkSrc = GetManifestIconDark();
 			if (!string.IsNullOrEmpty(iconDarkSrc)) {
-				string iconDarkDst = Path.Combine("icons", "icon-128-dark" + Path.GetExtension(iconDarkSrc));
+				iconDarkDst = Path.Combine("icons", "icon-128-dark" + Path.GetExtension(iconDarkSrc));
 				FileUtil.CopyFileOrDirectory(iconDarkSrc, Path.Combine(path, iconDarkDst));
 			}
 
 			// Copy manifest dark background
+			string backgroundDarkDst = "";
 			string backgroundDarkSrc = GetManifestBackgroundDark();
 			if (!string.IsNullOrEmpty(backgroundDarkSrc)) {
-				string backgroundDarkDst = Path.Combine("icons", "icon-background-dark" + Path.GetExtension(backgroundDarkSrc));
+				backgroundDarkDst = Path.Combine("icons", "icon-background-dark" + Path.GetExtension(backgroundDarkSrc));
 				FileUtil.CopyFileOrDirectory(backgroundDarkSrc, Path.Combine(path, backgroundDarkDst));
 			}
 
 			// Copy manifest dark banner
+			string bannerDarkDst = "";
 			string bannerDarkSrc = GetManifestBannerDark();
 			if (!string.IsNullOrEmpty(bannerDarkSrc)) {
-				string bannerDarkDst = Path.Combine("icons", "icon-banner-dark" + Path.GetExtension(bannerDarkSrc));
+				bannerDarkDst = Path.Combine("icons", "icon-banner-dark" + Path.GetExtension(bannerDarkSrc));
 				FileUtil.CopyFileOrDirectory(bannerDarkSrc, Path.Combine(path, bannerDarkDst));
 			}
 
@@ -912,29 +918,47 @@ namespace EXT.Editor {
 			string filepath = Path.Combine(path, "manifest.json");
 			string contents = File.ReadAllText(filepath);
 
-			// Replace name
-			Regex regexName = new Regex("[\\t ]*\"name\":[\\t ]*\"[^\\n]*\",[\\t ]*");
-			contents = regexName.Replace(contents, "\t\"name\": \"" + EscapeJSON(GetManifestName()) + "\",");
+			// Replace values
+			contents = ReplaceManifestValue(contents, "name", GetManifestName());
+			contents = ReplaceManifestValue(contents, "version", GetManifestVersion());
+			contents = ReplaceManifestValue(contents, "description", GetManifestDescription());
+			contents = ReplaceManifestValue(contents, "author", GetManifestAuthor());
+			contents = ReplaceManifestValue(contents, "homepage", GetManifestHomepage());
 
-			// Replace version
-			Regex regexVersion = new Regex("[\\t ]*\"version\":[\\t ]*\"[^\\n]*\",[\\t ]*");
-			contents = regexVersion.Replace(contents, "\t\"version\": \"" + EscapeJSON(GetManifestVersion()) + "\",");
-
-			// Replace description
-			Regex regexDescription = new Regex("[\\t ]*\"description\":[\\t ]*\"[^\\n]*\",[\\t ]*");
-			contents = regexDescription.Replace(contents, "\t\"description\": \"" + EscapeJSON(GetManifestDescription()) + "\",");
-
-			// Replace author
-			Regex regexAuthor = new Regex("[\\t ]*\"author\":[\\t ]*\"[^\\n]*\",[\\t ]*");
-			contents = regexAuthor.Replace(contents, "\t\"author\": \"" + EscapeJSON(GetManifestAuthor()) + "\",");
-
-			// Replace homepage
-			Regex regexHomepage = new Regex("[\\t ]*\"homepage\":[\\t ]*\"[^\\n]*\",[\\t ]*");
-			contents = regexHomepage.Replace(contents, "\t\"homepage\": \"" + EscapeJSON(GetManifestHomepage()) + "\",");
+			// Replace icons
+			bool comma = false;
+			contents = ReplaceManifestIcon(contents, "banner-dark", bannerDarkDst, ref comma);
+			contents = ReplaceManifestIcon(contents, "background-dark", backgroundDarkDst, ref comma);
+			contents = ReplaceManifestIcon(contents, "128-dark", iconDarkDst, ref comma);
+			contents = ReplaceManifestIcon(contents, "banner", bannerDst, ref comma);
+			contents = ReplaceManifestIcon(contents, "background", backgroundDst, ref comma);
+			contents = ReplaceManifestIcon(contents, "128", iconDst, ref comma);
 
 			// Save manifest file
 			using StreamWriter writer = new StreamWriter(filepath);
 			writer.Write(contents);
+			
+		}
+
+		private string ReplaceManifestValue(string contents, string key, string value) {
+			Regex regex = new Regex("\\t\"" + key + "\": \"[^\\n]*\",");
+			return regex.Replace(contents, "\t\"" + key + "\": \"" + EscapeJSON(value) + "\",");
+		}
+
+		private string ReplaceManifestIcon(string contents, string key, string value, ref bool comma) {
+
+			// Delete value if empty
+			Regex regex;
+			if (string.IsNullOrEmpty(value)) {
+				regex = new Regex("\\t\\t\"" + key + "\": \"[^\\n]*\",?\\n");
+				return regex.Replace(contents, "");
+			}
+
+			// Replace value and enable comma
+			regex = new Regex("\\t\\t\"" + key + "\": \"[^\\n]*\",?\\n");
+			contents = regex.Replace(contents, "\t\t\"" + key + "\": \"" + EscapeJSON(value) + "\"" + (comma ? "," : "") + "\n");
+			comma = true;
+			return contents;
 
 		}
 

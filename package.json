@@ -1,6 +1,6 @@
 {
   "name": "store.ext",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "EXT Framework",
   "description": "Integrate your Unity project with EXT!",
   "unity": "2020.1",

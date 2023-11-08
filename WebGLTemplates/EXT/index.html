@@ -47,8 +47,12 @@
           const extWebview = await window.ext.webviews.getCurrent();
           const extWindow = await window.ext.webviews.getAttachedWindow(extWebview.id);
           const size = await ext.windows.getInsetSize(extWindow.id);
-          topBar.style.marginRight = size.width + "px";
-          topBar.style.height = size.height + "px";
+          if (size) {
+            topBar.style.marginRight = size.width + "px";
+            topBar.style.height = size.height + "px";
+          } else {
+            topBar.style.height = "40px";
+          }
         } else {
           topBar.style.height = "40px";
         }

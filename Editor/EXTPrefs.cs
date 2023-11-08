@@ -200,6 +200,7 @@ namespace EXT.Editor {
 			instance = instance != null ? instance : GetAsset();
 			foreach (Record record in instance.m_Records) {
 				if (record.Key == key) {
+					if (record.Value == value) return;
 					record.Value = value;
 					found = true;
 					break;
