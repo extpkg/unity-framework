@@ -643,11 +643,6 @@ namespace EXT.Editor {
 
 				// Check if zip file already exists
 				if (zip && File.Exists(path)) {
-					if (!EditorUtility.DisplayDialog(
-						"Zip file already exists",
-						"Selected build location already exists. Overwrite?",
-						"Yes", "Cancel")
-					) return;
 					if (!FileUtil.DeleteFileOrDirectory(path)) {
 						throw new Exception("Failed to delete existing zip file.");
 					}
