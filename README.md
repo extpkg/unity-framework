@@ -2,7 +2,7 @@
 > Unity EXT Framework allows you to export and integrate your Unity projects with the EXT platform.
 
 ## Requirements
-The framework is compatible with Unity versions **2020.1** and later.
+The framework is compatible with Unity versions **2020.2** and later.
 
 ## Installation
 

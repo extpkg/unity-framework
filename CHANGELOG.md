@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.4] - 2023-11-10
+
+- Updated minimum Unity version to 2020.2
+- Removed confirmation dialog for overwriting zip files
+- Added ability to disable microphone access
+
 ## [1.0.3] - 2023-11-08
 
 - Added 40px dragable area to windows without inset controls
