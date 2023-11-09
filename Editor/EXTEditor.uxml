@@ -32,6 +32,7 @@
             <ui:Toggle label="Loading Screen" name="WebviewLoadEnabled" value="true" tooltip="Display loading screen" />
             <uie:ObjectField label="Loading Icon" type="UnityEngine.Texture, UnityEngine.CoreModule" name="WebviewLoadIcon" tooltip="Loading screen icon" />
             <ui:Toggle label="Data persistence" name="WebviewPersist" value="true" tooltip="Persist game data across restarts" />
+            <ui:Toggle label="Enable Microphone" name="WebviewMedia" value="true" tooltip="Allow access to microphone audio" />
             <ui:Toggle label="Open DevTools" name="WebviewDevTools" tooltip="Open DevTools for each window" />
         </ui:Foldout>
         <ui:Foldout text="Manifest Configuration" name="ManifestFoldout" view-data-key="ManifestFoldout">

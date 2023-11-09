@@ -41,6 +41,7 @@ const ConfigWindowAspectRatio = undefined
 // Webview Configuration
 const ConfigWebviewPersist = true
 const ConfigWebviewDevTools = false
+const ConfigWebviewMedia = true
 
 // Extension clicked
 ext.runtime.onExtensionClick.addListener(async () => {
@@ -99,6 +100,9 @@ ext.runtime.onExtensionClick.addListener(async () => {
         persistent: persistent,
         cache: true,
       })
+      if (ext.websessions.setPermissionCheckResponse) {
+        ext.websessions.setPermissionCheckResponse(websession.id, 'media', ConfigWebviewMedia)
+      }
     }
 
     // Create webview

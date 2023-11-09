@@ -33,7 +33,7 @@
 			"module_version": "1.0.2"
 		},
 		"websessions": {
-			"module_version": "1.0.3",
+			"module_version": "1.0.5",
 			"optional_permissions": [
 				"create.persistent"
 			]

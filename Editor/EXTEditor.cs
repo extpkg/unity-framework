@@ -67,6 +67,7 @@ namespace EXT.Editor {
 		private Toggle WebviewLoadEnabled;
 		private ObjectField WebviewLoadIcon;
 		private Toggle WebviewPersist;
+		private Toggle WebviewMedia;
 		private Toggle WebviewDevTools;
 
 		// Manifest elements
@@ -248,8 +249,13 @@ namespace EXT.Editor {
 			if (WebviewPersist != null) WebviewPersist.value = GetWebviewPersist();
 			if (WebviewPersist == null) Debug.LogError("WebviewPersist not found");
 
+			WebviewMedia = root.Query<Toggle>("WebviewMedia");
+			WebviewMedia?.RegisterCallback<ChangeEvent<bool>>(e => OnChangeWebviewMedia(e));
+			if (WebviewMedia != null) WebviewMedia.value = GetWebviewMedia();
+			if (WebviewMedia == null) Debug.LogError("WebviewMedia not found");
+
 			WebviewDevTools = root.Query<Toggle>("WebviewDevTools");
-			WebviewDevTools?.RegisterCallback<ChangeEvent<bool>>(e => OnChangWebviewDevTools(e));
+			WebviewDevTools?.RegisterCallback<ChangeEvent<bool>>(e => OnChangeWebviewDevTools(e));
 			if (WebviewDevTools != null) WebviewDevTools.value = GetWebviewDevTools();
 			if (WebviewDevTools == null) Debug.LogError("WebviewDevTools not found");
 
@@ -456,8 +462,11 @@ namespace EXT.Editor {
 		private bool GetWebviewPersist() => EXTPrefs.GetBool("WebviewPersist", true);
 		private void OnChangWebviewPersist(ChangeEvent<bool> e) => EXTPrefs.SetBool("WebviewPersist", e.newValue);
 
+		private bool GetWebviewMedia() => EXTPrefs.GetBool("WebviewMedia", true);
+		private void OnChangeWebviewMedia(ChangeEvent<bool> e) => EXTPrefs.SetBool("WebviewMedia", e.newValue);
+
 		private bool GetWebviewDevTools() => EXTPrefs.GetBool("WebviewDevTools", false);
-		private void OnChangWebviewDevTools(ChangeEvent<bool> e) => EXTPrefs.SetBool("WebviewDevTools", e.newValue);
+		private void OnChangeWebviewDevTools(ChangeEvent<bool> e) => EXTPrefs.SetBool("WebviewDevTools", e.newValue);
 
 		private string GetManifestName() => EXTPrefs.GetString("ManifestName", Application.productName);
 		private void OnChangeManifestName(ChangeEvent<string> e) {
@@ -573,6 +582,7 @@ namespace EXT.Editor {
 			EXTPrefs.DeleteKey("WebviewLoadEnabled");
 			EXTPrefs.DeleteKey("WebviewLoadIcon");
 			EXTPrefs.DeleteKey("WebviewPersist");
+			EXTPrefs.DeleteKey("WebviewMedia");
 			EXTPrefs.DeleteKey("WebviewDevTools");
 			EXTPrefs.DeleteKey("ManifestName");
 			EXTPrefs.DeleteKey("ManifestVersion");
@@ -1022,6 +1032,7 @@ namespace EXT.Editor {
 
 			// Replace webview values
 			contents = ReplaceScriptValue(contents, "ConfigWebviewPersist", GetWebviewPersist() ? "true" : "false");
+			contents = ReplaceScriptValue(contents, "ConfigWebviewMedia", GetWebviewMedia() ? "true" : "false");
 			contents = ReplaceScriptValue(contents, "ConfigWebviewDevTools", GetWebviewDevTools() ? "true" : "false");
 
 			// Save script file
